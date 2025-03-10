@@ -1,0 +1,28 @@
+services:
+<% services.forEach(service => { -%>
+  <%= service.name %>:
+    image: <%= service.image %>
+    container_name: <%= service.container_name %>
+<% if(service.volumes) { -%>
+    volumes:
+<% service.volumes.forEach(v => { -%>
+      - <%= v %>
+<% }); -%>
+<% } -%>
+<% if(service.ports) { -%>
+    ports:
+<% service.ports.forEach(p => { -%>
+      - "<%= p %>"
+<% }); -%>
+<% } -%>
+<% if(service.environment) { -%>
+    environment:
+<% for(const [key, value] of Object.entries(service.environment)) { -%>
+      - <%= key %>=<%= value %>
+<% } -%>
+<% } -%>
+<% if(service.command) { -%>
+    command: <%= service.command %>
+<% } -%>
+
+<% }); -%>
