@@ -2,16 +2,12 @@ import ejs from 'ejs';
 import path from 'path';
 import fs from 'fs';
 import { IServiceConfig } from './strategies/IStrategy';
+import { INetworkingConfig } from './factory/INetworkConfig';
 
 export class ComposeGenerator {
   private services: IServiceConfig[] = [];
-  private fileName: string;
-  private outputDir: string;
 
-  constructor(fileName: string, outputDir: string) {
-    this.fileName = fileName;
-    this.outputDir = outputDir;
-  }
+  constructor( private fileName: string, private outputDir: string, private networkingConfig: INetworkingConfig) {}
 
   addService(service: IServiceConfig) {
     this.services.push(service);
@@ -30,7 +26,8 @@ export class ComposeGenerator {
 
     const outputPath = path.join(this.outputDir, this.fileName);
     const content = await ejs.renderFile(templatePath, { 
-      services: sanitizedServices, 
+      services: sanitizedServices,
+      networking: this.networkingConfig
     });
     fs.writeFileSync(outputPath, content);
   }

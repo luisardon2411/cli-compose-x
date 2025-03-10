@@ -1,28 +1,46 @@
+version: '3.8'
+
 services:
 <% services.forEach(service => { -%>
   <%= service.name %>:
     image: <%= service.image %>
     container_name: <%= service.container_name %>
-<% if(service.volumes) { -%>
+<% if(service.volumes && service.volumes.length > 0) { -%>
     volumes:
 <% service.volumes.forEach(v => { -%>
       - <%= v %>
 <% }); -%>
 <% } -%>
-<% if(service.ports) { -%>
+<% if(service.ports && service.ports.length > 0) { -%>
     ports:
 <% service.ports.forEach(p => { -%>
       - "<%= p %>"
 <% }); -%>
 <% } -%>
-<% if(service.environment) { -%>
+<% if(service.environment && Object.keys(service.environment).length > 0) { -%>
     environment:
 <% for(const [key, value] of Object.entries(service.environment)) { -%>
       - <%= key %>=<%= value %>
 <% } -%>
 <% } -%>
 <% if(service.command) { -%>
-    command: <%= service.command %>
+<% if(Array.isArray(service.command)) { -%>
+    command: [<% service.command.forEach((cmd, index) => { %>"<%= cmd %>"<% if(index < service.command.length - 1) { %>, <% } %><% }); %>]
+<% } else { -%>
+    command: "<%= service.command %>"
+<% } -%>
+<% } -%>
+    networks:
+      <%= networking.network_name %>:
+<% if(service.networks && service.networks.ipv4_address) { -%>
+        ipv4_address: <%= service.networks.ipv4_address %>
 <% } -%>
 
 <% }); -%>
+
+networks:
+  <%= networking.network_name %>:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: <%= networking.subnet %>
